@@ -436,7 +436,8 @@
             const semester = document.getElementById('lesson-semester').value;
             const textbook = document.getElementById('lesson-textbook').value;
             const topic = document.getElementById('lesson-topic').value;
-            const newCurriculum = document.getElementById('lesson-new-curriculum').checked;
+            const newCurriculumCheckbox = document.getElementById('lesson-new-curriculum');
+            const newCurriculum = newCurriculumCheckbox ? newCurriculumCheckbox.checked : true;
             
             if (!subject || !grade || !textbook || !topic) {
                 alert('请填写完整的备课信息！');
