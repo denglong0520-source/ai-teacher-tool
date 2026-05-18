@@ -67,27 +67,11 @@
                     <p style="font-size: 14px; opacity: 0.9;">中小学教师智能备课助手 | 已接入真实AI</p>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="checkAPIHealth()" style="padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; cursor: pointer;">
-                    <i class="fas fa-heartbeat"></i> 检查API状态
-                </button>
-            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
-        <!-- Status Bar -->
-        <div id="status-bar" class="card" style="padding: 15px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div id="status-indicator" style="width: 12px; height: 12px; background: #fbbf24; border-radius: 50%;"></div>
-                <span id="status-text">正在检查API服务...</span>
-            </div>
-            <div style="font-size: 14px; color: #6b7280;">
-                <span id="api-service-name">未配置</span> | 
-                成本：约0.01元/次生成
-            </div>
-        </div>
 
         <!-- Tabs -->
         <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
@@ -235,10 +219,7 @@
             }
         }
         
-        // 页面加载时检查状态
-        window.addEventListener('load', () => {
-            checkAPIHealth();
-        });
+        // 页面加载完成
         
         // Tab switching
         function switchTab(tabName) {
@@ -275,13 +256,6 @@
             
             if (!subject || !grade || !textbook || !topic) {
                 alert('请填写完整的备课信息！');
-                return;
-            }
-            
-            // 检查API状态
-            const apiOk = await checkAPIHealth();
-            if (!apiOk) {
-                alert('API服务未启动！\n\n请确保：\n1. 已运行 npm install\n2. 已配置 .env 文件\n3. 已运行 npm start 启动服务');
                 return;
             }
             
