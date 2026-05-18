@@ -602,21 +602,21 @@
         function formatContent(content) {
             let html = content;
             
-            // 标题
-            html = html.replace(/^### (.*$)/gim, '<h3 style="color: #374151; margin: 20px 0 10px;">$1</h3>');
-            html = html.replace(/^## (.*$)/gim, '<h2 style="color: #1f2937; margin: 25px 0 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">$1</h2>');
+            // 标题（必须先处理大标题，再处理小标题）
             html = html.replace(/^# (.*$)/gim, '<h1 style="color: #1f2937; margin: 30px 0 20px; text-align: center;">$1</h1>');
+            html = html.replace(/^## (.*$)/gim, '<h2 style="color: #1f2937; margin: 25px 0 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">$1</h2>');
+            html = html.replace(/^### (.*$)/gim, '<h3 style="color: #374151; margin: 20px 0 10px;">$1</h3>');
             
             // 加粗
             html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             
-            // 列表
-            html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
-            html = html.replace(/(<li>.*<\/li>)/s, '<ul style="padding-left: 25px; margin: 10px 0;">$1</ul>');
+            // 列表（改进版）
+            html = html.replace(/^- (.+)$/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>)+/s, '<ul style="padding-left: 25px; margin: 10px 0;">$&</ul>');
             
             // 段落
-            html = html.replace(/\n\n/g, '</p><p style="margin: 10px 0;">');
             html = '<p style="margin: 10px 0;">' + html + '</p>';
+            html = html.replace(/\n\n/g, '</p><p style="margin: 10px 0;">');
             
             return html;
         }
