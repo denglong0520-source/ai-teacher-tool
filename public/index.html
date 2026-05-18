@@ -75,13 +75,13 @@
 
         <!-- Tabs -->
         <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
-            <button class="tab-btn tab-active" onclick="switchTab('lesson')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+            <button class="tab-btn tab-active" onclick="switchTab('lesson', this)" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-book"></i> 智能备课
             </button>
-            <button class="tab-btn" onclick="switchTab('exercise')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+            <button class="tab-btn" onclick="switchTab('exercise', this)" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
                 <i class="fas fa-pencil-alt"></i> 出题系统
             </button>
-            <button class="tab-btn" onclick="switchTab('document')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+            <button class="tab-btn" onclick="switchTab('document', this)" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
                 <i class="fas fa-file-word"></i> 行政文档
             </button>
         </div>
@@ -404,7 +404,7 @@
         const API_BASE = ''; // 相对路径，自动使用当前域名
         
         // Tab switching
-        function switchTab(tabName) {
+        function switchTab(tabName, btn) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
             });
@@ -416,7 +416,7 @@
             });
             
             document.getElementById(tabName + '-tab').style.display = 'block';
-            event.target.closest('.tab-btn').classList.add('tab-active');
+            btn.classList.add('tab-active');
         }
         
         // 填入示例数据
