@@ -39,7 +39,7 @@
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
+            0%, 100% { opacity:1; }
             50% { opacity: 0.5; }
         }
         
@@ -108,12 +108,26 @@
                         <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">年级</label>
                         <select id="lesson-grade" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
                             <option value="">请选择年级</option>
+                            <option value="小学一年级">小学一年级</option>
+                            <option value="小学二年级">小学二年级</option>
                             <option value="小学三年级">小学三年级</option>
                             <option value="小学四年级">小学四年级</option>
                             <option value="小学五年级">小学五年级</option>
+                            <option value="小学六年级">小学六年级</option>
                             <option value="初中七年级">初中七年级</option>
                             <option value="初中八年级" selected>初中八年级</option>
                             <option value="初中九年级">初中九年级</option>
+                            <option value="高中一年级">高中一年级</option>
+                            <option value="高中二年级">高中二年级</option>
+                            <option value="高中三年级">高中三年级</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">学期</label>
+                        <select id="lesson-semester" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="上学期" selected>上学期</option>
+                            <option value="下学期">下学期</option>
                         </select>
                     </div>
                     
@@ -130,13 +144,6 @@
                         <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">课题名称</label>
                         <input type="text" id="lesson-topic" value="勾股定理" placeholder="例如：勾股定理、滕王阁序..." style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
                     </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" id="lesson-new-curriculum" checked style="width: 20px; height: 20px;">
-                        <span style="font-weight: 600; color: #374151;">符合新课标要求</span>
-                    </label>
                 </div>
                 
                 <div style="display: flex; gap: 15px; margin-bottom: 30px;">
@@ -186,7 +193,7 @@
                 <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #1f2937;">
                     <i class="fas fa-pencil-alt" style="margin-right: 10px; color: #667eea;"></i>智能出题系统
                 </h2>
-                <p style="color: #6b7280; margin-bottom: 20px;">AI自动生成练习题，支持多种题型，附带详细解答</p>
+                <p style="color: #6b7280; margin-bottom: 20px;">AI自动生成练习题，支持多种题型，可上传参考题库</p>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
                     <div>
@@ -225,6 +232,14 @@
                     </div>
                     
                     <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">学期</label>
+                        <select id="exercise-semester" style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="上学期">上学期</option>
+                            <option value="下学期">下学期</option>
+                        </select>
+                    </div>
+                    
+                    <div>
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">题目数量</label>
                         <input type="number" id="exercise-count" value="10" min="1" max="50" style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;">
                     </div>
@@ -242,6 +257,15 @@
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">知识点/章节 *</label>
                     <input type="text" id="exercise-topic" placeholder="例如：勾股定理、光合作用、辛亥革命..." style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                </div>
+                
+                <!-- 文件上传区域 -->
+                <div style="margin-bottom: 20px; padding: 20px; background: #f9fafb; border: 2px dashed #d1d5db; border-radius: 8px;">
+                    <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #374151;">
+                        <i class="fas fa-cloud-upload-alt" style="margin-right: 8px; color: #667eea;"></i>上传参考题库（可选）
+                    </label>
+                    <input type="file" id="exercise-file" accept=".txt,.doc,.docx,.pdf" style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: white;">
+                    <p style="margin-top: 8px; font-size: 12px; color: #6b7280;">支持 .txt, .doc, .docx, .pdf 格式，AI将参考上传的题库内容生成练习题</p>
                 </div>
                 
                 <div style="margin-bottom: 30px;">
@@ -379,26 +403,6 @@
     <script>
         const API_BASE = ''; // 相对路径，自动使用当前域名
         
-        // 检查API健康状态
-        async function checkAPIHealth() {
-            try {
-                const response = await fetch(`${API_BASE}/api/health`);
-                const data = await response.json();
-                
-                document.getElementById('status-indicator').style.background = '#10b981';
-                document.getElementById('status-text').textContent = 'API服务正常';
-                document.getElementById('api-service-name').textContent = '教备AI服务';
-                return true;
-            } catch (error) {
-                document.getElementById('status-indicator').style.background = '#ef4444';
-                document.getElementById('status-text').textContent = 'API服务未启动，请先运行 npm start';
-                document.getElementById('api-service-name').textContent = '服务未连接';
-                return false;
-            }
-        }
-        
-        // 页面加载完成
-        
         // Tab switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -419,6 +423,7 @@
         function fillDemoData() {
             document.getElementById('lesson-subject').value = '数学';
             document.getElementById('lesson-grade').value = '初中八年级';
+            document.getElementById('lesson-semester').value = '上学期';
             document.getElementById('lesson-textbook').value = '人教版';
             document.getElementById('lesson-topic').value = '勾股定理';
             alert('已填入示例数据，现在点击"调用真实AI生成教案"按钮测试！');
@@ -428,6 +433,7 @@
         async function generateLessonPlan() {
             const subject = document.getElementById('lesson-subject').value;
             const grade = document.getElementById('lesson-grade').value;
+            const semester = document.getElementById('lesson-semester').value;
             const textbook = document.getElementById('lesson-textbook').value;
             const topic = document.getElementById('lesson-topic').value;
             const newCurriculum = document.getElementById('lesson-new-curriculum').checked;
@@ -450,6 +456,7 @@
                     body: JSON.stringify({
                         subject,
                         grade,
+                        semester,
                         textbook,
                         topic,
                         newCurriculum
@@ -477,33 +484,11 @@
             }
         }
         
-        // 格式化内容（简单Markdown转HTML）
-        function formatContent(content) {
-            let html = content;
-            
-            // 标题
-            html = html.replace(/^### (.*$)/gim, '<h3 style="color: #374151; margin: 20px 0 10px;">$1</h3>');
-            html = html.replace(/^## (.*$)/gim, '<h2 style="color: #1f2937; margin: 25px 0 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">$1</h2>');
-            html = html.replace(/^# (.*$)/gim, '<h1 style="color: #1f2937; margin: 30px 0 20px; text-align: center;">$1</h1>');
-            
-            // 加粗
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // 列表
-            html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
-            html = html.replace(/(<li>.*<\/li>)/s, '<ul style="padding-left: 25px; margin: 10px 0;">$1</ul>');
-            
-            // 段落
-            html = html.replace(/\n\n/g, '</p><p style="margin: 10px 0;">');
-            html = '<p style="margin: 10px 0;">' + html + '</p>';
-            
-            return html;
-        }
-        
         // 生成练习题
         async function generateExercise() {
             const subject = document.getElementById('exercise-subject').value;
             const grade = document.getElementById('exercise-grade').value;
+            const semester = document.getElementById('exercise-semester').value;
             const topic = document.getElementById('exercise-topic').value;
             const questionCount = document.getElementById('exercise-count').value;
             
@@ -535,6 +520,7 @@
                     body: JSON.stringify({
                         subject,
                         grade,
+                        semester,
                         topic,
                         questionCount: parseInt(questionCount),
                         questionTypes: types,
@@ -610,6 +596,29 @@
                 document.getElementById('doc-error').style.display = 'block';
                 document.getElementById('doc-error-msg').textContent = error.message;
             }
+        }
+        
+        // 格式化内容（简单Markdown转HTML）
+        function formatContent(content) {
+            let html = content;
+            
+            // 标题
+            html = html.replace(/^### (.*$)/gim, '<h3 style="color: #374151; margin: 20px 0 10px;">$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2 style="color: #1f2937; margin: 25px 0 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1 style="color: #1f2937; margin: 30px 0 20px; text-align: center;">$1</h1>');
+            
+            // 加粗
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 列表
+            html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/s, '<ul style="padding-left: 25px; margin: 10px 0;">$1</ul>');
+            
+            // 段落
+            html = html.replace(/\n\n/g, '</p><p style="margin: 10px 0;">');
+            html = '<p style="margin: 10px 0;">' + html + '</p>';
+            
+            return html;
         }
         
         // 复制内容

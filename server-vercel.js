@@ -42,17 +42,17 @@ async function callQwenAPI(prompt, systemPrompt = '') {
 // 生成教案
 app.post('/api/generate/lesson-plan', async (req, res) => {
     try {
-        const { subject, grade, textbook, topic, newCurriculum } = req.body;
+        const { subject, grade, semester, textbook, topic, newCurriculum } = req.body;
         
         if (!subject || !grade || !textbook || !topic) {
             return res.status(400).json({ success: false, error: '缺少必要参数' });
         }
 
-        const systemPrompt = `你是${subject}学科资深教师，精通${grade}教学内容。` +
+        const systemPrompt = `你是${subject}学科资深教师，精通${grade}${semester}教学内容。` +
             `${newCurriculum ? '你必须严格遵循2022年版义务教育课程标准。' : ''}` +
             '生成的教案必须专业、详细、可直接使用。';
 
-        const prompt = `请为${grade}${subject}学科生成关于《${topic}》的完整教案。
+        const prompt = `请为${grade}${semester}${subject}学科生成关于《${topic}》的完整教案。
 
 教材版本：${textbook}
 
