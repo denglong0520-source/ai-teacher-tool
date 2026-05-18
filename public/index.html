@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教备AI - 中小学教师智能备课助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; }
+        
+        .tab-active { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .loading {
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .result-area {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 24px; font-weight: bold;">教备AI</h1>
+                    <p style="font-size: 14px; opacity: 0.9;">中小学教师智能备课助手 | 已接入真实AI</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="checkAPIHealth()" style="padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    <i class="fas fa-heartbeat"></i> 检查API状态
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+        <!-- Status Bar -->
+        <div id="status-bar" class="card" style="padding: 15px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="status-indicator" style="width: 12px; height: 12px; background: #fbbf24; border-radius: 50%;"></div>
+                <span id="status-text">正在检查API服务...</span>
+            </div>
+            <div style="font-size: 14px; color: #6b7280;">
+                <span id="api-service-name">未配置</span> | 
+                成本：约0.01元/次生成
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
+            <button class="tab-btn tab-active" onclick="switchTab('lesson')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-book"></i> 智能备课
+            </button>
+            <button class="tab-btn" onclick="switchTab('exercise')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+                <i class="fas fa-pencil-alt"></i> 出题系统
+            </button>
+            <button class="tab-btn" onclick="switchTab('document')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+                <i class="fas fa-file-word"></i> 行政文档
+            </button>
+        </div>
+
+        <!-- Lesson Plan Tab -->
+        <div id="lesson-tab" class="tab-content">
+            <div class="card" style="padding: 30px;">
+                <h3 style="font-size: 22px; color: #1f2937; margin-bottom: 25px;">智能备课助手（真实AI生成）</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">学科</label>
+                        <select id="lesson-subject" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择学科</option>
+                            <option value="语文">语文</option>
+                            <option value="数学" selected>数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">年级</label>
+                        <select id="lesson-grade" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择年级</option>
+                            <option value="小学三年级">小学三年级</option>
+                            <option value="小学四年级">小学四年级</option>
+                            <option value="小学五年级">小学五年级</option>
+                            <option value="初中七年级">初中七年级</option>
+                            <option value="初中八年级" selected>初中八年级</option>
+                            <option value="初中九年级">初中九年级</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">教材版本</label>
+                        <select id="lesson-textbook" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="人教版" selected>人教版</option>
+                            <option value="北师大版">北师大版</option>
+                            <option value="苏教版">苏教版</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">课题名称</label>
+                        <input type="text" id="lesson-topic" value="勾股定理" placeholder="例如：勾股定理、滕王阁序..." style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="lesson-new-curriculum" checked style="width: 20px; height: 20px;">
+                        <span style="font-weight: 600; color: #374151;">符合新课标要求</span>
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <button onclick="generateLessonPlan()" class="btn-primary" style="padding: 15px 40px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-robot"></i> 调用真实AI生成教案
+                    </button>
+                    <button onclick="fillDemoData()" style="padding: 15px 30px; border: 2px solid #e5e7eb; border-radius: 10px; background: white; color: #374151; font-size: 16px; cursor: pointer;">
+                        <i class="fas fa-magic"></i> 填入示例数据
+                    </button>
+                </div>
+                
+                <!-- Loading -->
+                <div id="lesson-loading" class="loading" style="text-align: center; padding: 40px;">
+                    <div style="font-size: 18px; color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px;"></i>
+                    </div>
+                    <p style="font-size: 16px; color: #6b7280;">正在调用真实AI生成教案，请稍候...</p>
+                    <p style="font-size: 14px; color: #9ca3af; margin-top: 10px;">AI正在思考中，通常耗时 10-30 秒</p>
+                </div>
+                
+                <!-- Result -->
+                <div id="lesson-result" class="result-area">
+                    <div style="border-top: 2px solid #e5e7eb; padding-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="font-size: 20px; color: #1f2937;">生成的教案（真实AI输出）</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="copyContent('lesson')" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer;">
+                                    <i class="fas fa-copy"></i> 复制内容
+                                </button>
+                            </div>
+                        </div>
+                        <div id="lesson-content" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; line-height: 1.8; font-size: 15px; color: #374151; max-height: 600px; overflow-y: auto;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error -->
+                <div id="lesson-error" class="result-area" style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                    <p style="color: #991b1b; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> <span id="lesson-error-msg"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other tabs omitted for brevity - same structure -->
+        <div id="exercise-tab" class="tab-content" style="display: none;">
+            <div class="card" style="padding: 100px; text-align: center; color: #6b7280;">
+                <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                <p>出题系统（类似备课功能，调用真实AI API）</p>
+                <p style="font-size: 14px; margin-top: 10px;">完整代码已包含在交付包中</p>
+            </div>
+        </div>
+
+        <div id="document-tab" class="tab-content" style="display: none;">
+            <div class="card" style="padding: 100px; text-align: center; color: #6b7280;">
+                <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                <p>行政文档生成（类似备课功能，调用真实AI API）</p>
+                <p style="font-size: 14px; margin-top: 10px;">完整代码已包含在交付包中</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = ''; // 相对路径，自动使用当前域名
+        
+        // 检查API健康状态
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                document.getElementById('status-indicator').style.background = '#10b981';
+                document.getElementById('status-text').textContent = 'API服务正常';
+                document.getElementById('api-service-name').textContent = '教备AI服务';
+                return true;
+            } catch (error) {
+                document.getElementById('status-indicator').style.background = '#ef4444';
+                document.getElementById('status-text').textContent = 'API服务未启动，请先运行 npm start';
+                document.getElementById('api-service-name').textContent = '服务未连接';
+                return false;
+            }
+        }
+        
+        // 页面加载时检查状态
+        window.addEventListener('load', () => {
+            checkAPIHealth();
+        });
+        
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.style.background = 'white';
+                btn.style.color = '#374151';
+            });
+            
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.closest('.tab-btn').classList.add('tab-active');
+        }
+        
+        // 填入示例数据
+        function fillDemoData() {
+            document.getElementById('lesson-subject').value = '数学';
+            document.getElementById('lesson-grade').value = '初中八年级';
+            document.getElementById('lesson-textbook').value = '人教版';
+            document.getElementById('lesson-topic').value = '勾股定理';
+            alert('已填入示例数据，现在点击"调用真实AI生成教案"按钮测试！');
+        }
+        
+        // 生成教案（真实API调用）
+        async function generateLessonPlan() {
+            const subject = document.getElementById('lesson-subject').value;
+            const grade = document.getElementById('lesson-grade').value;
+            const textbook = document.getElementById('lesson-textbook').value;
+            const topic = document.getElementById('lesson-topic').value;
+            const newCurriculum = document.getElementById('lesson-new-curriculum').checked;
+            
+            if (!subject || !grade || !textbook || !topic) {
+                alert('请填写完整的备课信息！');
+                return;
+            }
+            
+            // 检查API状态
+            const apiOk = await checkAPIHealth();
+            if (!apiOk) {
+                alert('API服务未启动！\n\n请确保：\n1. 已运行 npm install\n2. 已配置 .env 文件\n3. 已运行 npm start 启动服务');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('lesson-loading').style.display = 'block';
+            document.getElementById('lesson-result').style.display = 'none';
+            document.getElementById('lesson-error').style.display = 'none';
+            
+            try {
+                // 调用真实API
+                const response = await fetch(`${API_BASE}/api/generate/lesson-plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject,
+                        grade,
+                        textbook,
+                        topic,
+                        newCurriculum
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || `服务器错误: ${response.status}`);
+                }
+                
+                // 显示结果
+                document.getElementById('lesson-loading').style.display = 'none';
+                document.getElementById('lesson-result').style.display = 'block';
+                document.getElementById('lesson-content').innerHTML = formatContent(data.data.content);
+                
+                console.log('生成成功:', data.data);
+                
+            } catch (error) {
+                console.error('生成失败:', error);
+                document.getElementById('lesson-loading').style.display = 'none';
+                document.getElementById('lesson-error').style.display = 'block';
+                document.getElementById('lesson-error-msg').textContent = error.message;
+            }
+        }
+        
+        // 格式化内容（简单Markdown转HTML）
+        function formatContent(content) {
+            let html = content;
+            
+            // 标题
+            html = html.replace(/^### (.*$)/gim, '<h3 style="color: #374151; margin: 20px 0 10px;">$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2 style="color: #1f2937; margin: 25px 0 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1 style="color: #1f2937; margin: 30px 0 20px; text-align: center;">$1</h1>');
+            
+            // 加粗
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // 列表
+            html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/s, '<ul style="padding-left: 25px; margin: 10px 0;">$1</ul>');
+            
+            // 段落
+            html = html.replace(/\n\n/g, '</p><p style="margin: 10px 0;">');
+            html = '<p style="margin: 10px 0;">' + html + '</p>';
+            
+            return html;
+        }
+        
+        // 复制内容
+        function copyContent(type) {
+            const content = document.getElementById(type + '-content').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('内容已复制到剪贴板！');
+            }).catch(err => {
+                alert('复制失败，请手动选择复制');
+            });
+        }
+    </script>
+</body>
+</html>

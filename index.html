@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教备AI - 中小学教师智能备课助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; }
+        
+        .tab-active { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .result-area {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        textarea, select, input[type="text"] {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        textarea:focus, select:focus, input[type="text"]:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 24px; font-weight: bold;">教备AI</h1>
+                    <p style="font-size: 14px; opacity: 0.9;">中小学教师智能备课助手</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button style="padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    <i class="fas fa-question-circle"></i> 使用帮助
+                </button>
+                <button style="padding: 8px 16px; background: rgba(255,255,255,0.2); border: none; border-radius: 8px; color: white; cursor: pointer;">
+                    <i class="fas fa-cog"></i> 设置
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+        <!-- Introduction -->
+        <div class="card" style="padding: 30px; margin-bottom: 30px; text-align: center;">
+            <h2 style="font-size: 28px; color: #1f2937; margin-bottom: 15px;">让AI帮您完成重复性工作</h2>
+            <p style="font-size: 16px; color: #6b7280; max-width: 800px; margin: 0 auto;">
+                教备AI专为中小学教师设计，帮助您快速生成教案、作业题目和行政文档。
+                只需简单几步操作，即可完成过去需要数小时的工作。
+            </p>
+            <div style="display: flex; justify-content: center; gap: 30px; margin-top: 25px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                    <span style="color: #374151;">无需AI基础知识</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                    <span style="color: #374151;">符合新课标要求</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                    <span style="color: #374151;">支持多教材版本</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                    <span style="color: #374151;">一键导出打印</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
+            <button class="tab-btn tab-active" onclick="switchTab('lesson')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-book"></i> 智能备课
+            </button>
+            <button class="tab-btn" onclick="switchTab('exercise')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+                <i class="fas fa-pencil-alt"></i> 出题系统
+            </button>
+            <button class="tab-btn" onclick="switchTab('document')" style="padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; background: white; color: #374151;">
+                <i class="fas fa-file-word"></i> 行政文档
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="lesson-tab" class="tab-content">
+            <div class="card" style="padding: 30px;">
+                <h3 style="font-size: 22px; color: #1f2937; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <div class="feature-icon" style="width: 50px; height: 50px; font-size: 24px; border-radius: 12px; margin: 0;">📚</div>
+                    智能备课助手
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">学科</label>
+                        <select id="lesson-subject" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择学科</option>
+                            <option value="语文">语文</option>
+                            <option value="数学">数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                            <option value="生物">生物</option>
+                            <option value="历史">历史</option>
+                            <option value="地理">地理</option>
+                            <option value="政治">道德与法治</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">年级</label>
+                        <select id="lesson-grade" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择年级</option>
+                            <option value="一年级">小学一年级</option>
+                            <option value="二年级">小学二年级</option>
+                            <option value="三年级">小学三年级</option>
+                            <option value="四年级">小学四年级</option>
+                            <option value="五年级">小学五年级</option>
+                            <option value="六年级">小学六年级</option>
+                            <option value="七年级">初中七年级</option>
+                            <option value="八年级">初中八年级</option>
+                            <option value="九年级">初中九年级</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">教材版本</label>
+                        <select id="lesson-textbook" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择教材版本</option>
+                            <option value="人教版">人教版</option>
+                            <option value="北师大版">北师大版</option>
+                            <option value="苏教版">苏教版</option>
+                            <option value="鲁教版">鲁教版</option>
+                            <option value="粤教版">粤教版</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">课题名称</label>
+                        <input type="text" id="lesson-topic" placeholder="例如：勾股定理、滕王阁序、 photosynthesis..." style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="lesson-new-curriculum" checked style="width: 20px; height: 20px;">
+                        <span style="font-weight: 600; color: #374151;">符合新课标要求</span>
+                        <i class="fas fa-info-circle" style="color: #667eea;" title="生成的教案将严格遵循2022年版义务教育课程标准"></i>
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <button onclick="generateLessonPlan()" class="btn-primary" style="padding: 15px 40px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-magic"></i> 生成教案
+                    </button>
+                    <button onclick="resetForm('lesson')" style="padding: 15px 30px; border: 2px solid #e5e7eb; border-radius: 10px; background: white; color: #374151; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+                
+                <!-- Loading -->
+                <div id="lesson-loading" class="loading" style="text-align: center; padding: 40px;">
+                    <div style="font-size: 18px; color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px;"></i>
+                    </div>
+                    <p style="font-size: 16px; color: #6b7280;">AI正在为您生成教案，请稍候...</p>
+                    <p style="font-size: 14px; color: #9ca3af; margin-top: 10px;">通常耗时 10-30 秒</p>
+                </div>
+                
+                <!-- Result -->
+                <div id="lesson-result" class="result-area" style="display: none;">
+                    <div style="border-top: 2px solid #e5e7eb; padding-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="font-size: 20px; color: #1f2937;">生成的教案</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="exportToWord('lesson')" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-download"></i> 导出Word
+                                </button>
+                                <button onclick="printResult('lesson')" style="padding: 10px 20px; background: #667eea; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-print"></i> 打印
+                                </button>
+                            </div>
+                        </div>
+                        <div id="lesson-content" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; line-height: 1.8; font-size: 15px; color: #374151;">
+                            <!-- 教案内容将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="exercise-tab" class="tab-content" style="display: none;">
+            <div class="card" style="padding: 30px;">
+                <h3 style="font-size: 22px; color: #1f2937; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <div class="feature-icon" style="width: 50px; height: 50px; font-size: 24px; border-radius: 12px; margin: 0;">✏️</div>
+                    智能出题系统
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">学科</label>
+                        <select id="exercise-subject" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择学科</option>
+                            <option value="语文">语文</option>
+                            <option value="数学">数学</option>
+                            <option value="英语">英语</option>
+                            <option value="物理">物理</option>
+                            <option value="化学">化学</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">年级</label>
+                        <select id="exercise-grade" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择年级</option>
+                            <option value="一年级">小学一年级</option>
+                            <option value="二年级">小学二年级</option>
+                            <option value="三年级">小学三年级</option>
+                            <option value="四年级">小学四年级</option>
+                            <option value="五年级">小学五年级</option>
+                            <option value="六年级">小学六年级</option>
+                            <option value="七年级">初中七年级</option>
+                            <option value="八年级">初中八年级</option>
+                            <option value="九年级">初中九年级</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">知识点（可多选）</label>
+                    <textarea id="exercise-knowledge" placeholder="请输入知识点，用逗号分隔&#10;例如：勾股定理，直角三角形，斜边" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; min-height: 100px;"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #374151;">难度分布</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-weight: 600; color: #10b981;">基础题</span>
+                                <span style="background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 14px;">简单</span>
+                            </div>
+                            <input type="number" id="basic-count" value="10" min="0" max="20" style="width: 100%; padding: 8px; border: 2px solid #e5e7eb; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">适合全班学生</div>
+                        </div>
+                        
+                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-weight: 600; color: #f59e0b;">提高题</span>
+                                <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 14px;">中等</span>
+                            </div>
+                            <input type="number" id="medium-count" value="5" min="0" max="20" style="width: 100%; padding: 8px; border: 2px solid #e5e7eb; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">适合中等生</div>
+                        </div>
+                        
+                        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-weight: 600; color: #ef4444;">拓展题</span>
+                                <span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 14px;">困难</span>
+                            </div>
+                            <input type="number" id="advanced-count" value="3" min="0" max="20" style="width: 100%; padding: 8px; border: 2px solid #e5e7eb; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">适合优等生</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 15px; font-weight: 600; color: #374151;">题型选择</label>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 20px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="checkbox" id="type-choice" checked style="width: 18px; height: 18px;">
+                            <span>选择题</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 20px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="checkbox" id="type-fill" checked style="width: 18px; height: 18px;">
+                            <span>填空题</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 20px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="checkbox" id="type-calculation" style="width: 18px; height: 18px;">
+                            <span>计算题</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 20px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
+                            <input type="checkbox" id="type-essay" style="width: 18px; height: 18px;">
+                            <span>解答题</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <button onclick="generateExercises()" class="btn-primary" style="padding: 15px 40px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-magic"></i> 生成题目
+                    </button>
+                    <button onclick="resetForm('exercise')" style="padding: 15px 30px; border: 2px solid #e5e7eb; border-radius: 10px; background: white; color: #374151; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+                
+                <!-- Loading -->
+                <div id="exercise-loading" class="loading" style="text-align: center; padding: 40px;">
+                    <div style="font-size: 18px; color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px;"></i>
+                    </div>
+                    <p style="font-size: 16px; color: #6b7280;">AI正在为您生成题目，请稍候...</p>
+                    <p style="font-size: 14px; color: #9ca3af; margin-top: 10px;">通常耗时 15-40 秒</p>
+                </div>
+                
+                <!-- Result -->
+                <div id="exercise-result" class="result-area" style="display: none;">
+                    <div style="border-top: 2px solid #e5e7eb; padding-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="font-size: 20px; color: #1f2937;">生成的题目</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="exportToPDF('exercise')" style="padding: 10px 20px; background: #ef4444; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-file-pdf"></i> 导出PDF
+                                </button>
+                                <button onclick="exportWithAnswers('exercise')" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-download"></i> 含答案版本
+                                </button>
+                            </div>
+                        </div>
+                        <div id="exercise-content" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; line-height: 1.8; font-size: 15px; color: #374151;">
+                            <!-- 题目内容将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="document-tab" class="tab-content" style="display: none;">
+            <div class="card" style="padding: 30px;">
+                <h3 style="font-size: 22px; color: #1f2937; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <div class="feature-icon" style="width: 50px; height: 50px; font-size: 24px; border-radius: 12px; margin: 0;">📄</div>
+                    行政文档生成
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">文档类型</label>
+                        <select id="doc-type" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">请选择文档类型</option>
+                            <option value="公开课申报表">公开课申报表</option>
+                            <option value="教研活动总结">教研活动总结</option>
+                            <option value="学期工作总结">学期工作总结</option>
+                            <option value="教学设计方案">教学设计方案</option>
+                            <option value="听课记录">听课记录</option>
+                            <option value="教学计划">教学计划</option>
+                            <option value="班主任工作总结">班主任工作总结</option>
+                            <option value="家长会发言稿">家长会发言稿</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">学校名称</label>
+                        <input type="text" id="doc-school" placeholder="例如：北京市海淀区中关村第一小学" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #374151;">关键信息（请简要描述，AI将自动扩展）</label>
+                    <textarea id="doc-keywords" placeholder="请简要描述文档的关键信息&#10;例如：本学期担任三年级2班班主任，班级共有45名学生，男生23名，女生22名，本学期主要开展了...&#10;&#10;AI将根据您输入的关键信息，自动生成符合学校公文规范的完整文档。" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; min-height: 150px;"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="doc-formal" checked style="width: 20px; height: 20px;">
+                        <span style="font-weight: 600; color: #374151;">使用正式公文格式</span>
+                        <i class="fas fa-info-circle" style="color: #667eea;" title="生成的文档将符合学校公文规范，包括标题、正文、落款等格式"></i>
+                    </label>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 30px;">
+                    <button onclick="generateDocument()" class="btn-primary" style="padding: 15px 40px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-magic"></i> 生成文档
+                    </button>
+                    <button onclick="resetForm('document')" style="padding: 15px 30px; border: 2px solid #e5e7eb; border-radius: 10px; background: white; color: #374151; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+                
+                <!-- Loading -->
+                <div id="document-loading" class="loading" style="text-align: center; padding: 40px;">
+                    <div style="font-size: 18px; color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 48px;"></i>
+                    </div>
+                    <p style="font-size: 16px; color: #6b7280;">AI正在为您生成文档，请稍候...</p>
+                    <p style="font-size: 14px; color: #9ca3af; margin-top: 10px;">通常耗时 10-25 秒</p>
+                </div>
+                
+                <!-- Result -->
+                <div id="document-result" class="result-area" style="display: none;">
+                    <div style="border-top: 2px solid #e5e7eb; padding-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="font-size: 20px; color: #1f2937;">生成的文档</h4>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="exportToWord('document')" style="padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-download"></i> 导出Word
+                                </button>
+                                <button onclick="uploadToOA()" style="padding: 10px 20px; background: #667eea; border: none; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-cloud-upload-alt"></i> 上传学校OA
+                                </button>
+                            </div>
+                        </div>
+                        <div id="document-content" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; line-height: 1.8; font-size: 15px; color: #374151;">
+                            <!-- 文档内容将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="card" style="padding: 30px; margin-top: 30px; text-align: center;">
+            <h3 style="font-size: 20px; color: #1f2937; margin-bottom: 15px;">为什么选择教备AI？</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 25px;">
+                <div>
+                    <div style="font-size: 48px; margin-bottom: 15px;">🎯</div>
+                    <h4 style="font-size: 18px; color: #1f2937; margin-bottom: 10px;">精准匹配需求</h4>
+                    <p style="font-size: 14px; color: #6b7280;">深入理解教师工作实际，功能设计贴合真实使用场景</p>
+                </div>
+                <div>
+                    <div style="font-size: 48px; margin-bottom: 15px;">⚡</div>
+                    <h4 style="font-size: 18px; color: #1f2937; margin-bottom: 10px;">极速生成</h4>
+                    <p style="font-size: 14px; color: #6b7280;">30秒内完成过去需要数小时的工作，大幅提升工作效率</p>
+                </div>
+                <div>
+                    <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                    <h4 style="font-size: 18px; color: #1f2937; margin-bottom: 10px;">合规可靠</h4>
+                    <p style="font-size: 14px; color: #6b7280;">严格遵循新课标和公文规范，输出内容可直接使用</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: #1f2937; color: white; padding: 40px 0; margin-top: 50px;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px; text-align: center;">
+            <p style="margin-bottom: 10px;">教备AI - 让技术服务于教育</p>
+            <p style="font-size: 14px; color: #9ca3af;">本工具为MVP演示版本，展示核心功能与设计理念</p>
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+                <a href="#" style="color: #9ca3af; text-decoration: none;">使用条款</a>
+                <a href="#" style="color: #9ca3af; text-decoration: none;">隐私政策</a>
+                <a href="#" style="color: #9ca3af; text-decoration: none;">联系我们</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.style.background = 'white';
+                btn.style.color = '#374151';
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to clicked button
+            event.target.closest('.tab-btn').classList.add('tab-active');
+        }
+        
+        // Generate lesson plan
+        function generateLessonPlan() {
+            const subject = document.getElementById('lesson-subject').value;
+            const grade = document.getElementById('lesson-grade').value;
+            const textbook = document.getElementById('lesson-textbook').value;
+            const topic = document.getElementById('lesson-topic').value;
+            
+            if (!subject || !grade || !textbook || !topic) {
+                alert('请填写完整的备课信息！');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('lesson-loading').style.display = 'block';
+            document.getElementById('lesson-result').style.display = 'none';
+            
+            // Simulate AI generation (in real version, this would call AI API)
+            setTimeout(() => {
+                document.getElementById('lesson-loading').style.display = 'none';
+                document.getElementById('lesson-result').style.display = 'block';
+                
+                // Generate mock lesson plan content
+                const content = generateMockLessonPlan(subject, grade, textbook, topic);
+                document.getElementById('lesson-content').innerHTML = content;
+            }, 2000);
+        }
+        
+        // Generate mock lesson plan
+        function generateMockLessonPlan(subject, grade, textbook, topic) {
+            return `
+                <h2 style="text-align: center; color: #1f2937; margin-bottom: 30px;">${textbook} ${subject} ${grade} - 《${topic}》教案</h2>
+                
+                <div style="background: #dbeafe; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #1e40af; margin-bottom: 15px;">一、教学目标</h3>
+                    <p><strong>知识与技能：</strong>学生能够理解${topic}的基本概念，掌握其核心特征和应用方法。</p>
+                    <p><strong>过程与方法：</strong>通过小组讨论和案例分析，培养学生的探究能力和合作精神。</p>
+                    <p><strong>情感态度与价值观：</strong>激发学生对${subject}学科的兴趣，培养科学思维和创新能力。</p>
+                </div>
+                
+                <div style="background: #d1fae5; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #065f46; margin-bottom: 15px;">二、教学重难点</h3>
+                    <p><strong>教学重点：</strong>${topic}的核心概念理解与应用</p>
+                    <p><strong>教学难点：</strong>${topic}在实际问题中的灵活运用</p>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <h3 style="color: #374151; margin-bottom: 15px;">三、教学准备</h3>
+                    <ul style="padding-left: 25px;">
+                        <li>多媒体课件（PPT）</li>
+                        <li>教学视频/动画素材</li>
+                        <li>学生练习材料</li>
+                        <li>课堂互动道具</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <h3 style="color: #374151; margin-bottom: 15px;">四、教学过程（45分钟）</h3>
+                    
+                    <div style="background: #f9fafb; padding: 15px; border-left: 4px solid #667eea; margin-bottom: 15px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">1. 导入新课（5分钟）</h4>
+                        <p>通过生活实例或问题情境引入${topic}，激发学生兴趣。</p>
+                        <p><em>教师活动：</em>展示相关图片/视频，提出引导性问题</p>
+                        <p><em>学生活动：</em>观察、思考、自由发言</p>
+                    </div>
+                    
+                    <div style="background: #f9fafb; padding: 15px; border-left: 4px solid #10b981; margin-bottom: 15px;">
+                        <h4 style="color: #10b981; margin-bottom: 10px;">2. 新课讲授（20分钟）</h4>
+                        <p><strong>环节一：</strong>讲解${topic}的基本概念和特征</p>
+                        <p><strong>环节二：</strong>通过示例演示${topic}的应用方法</p>
+                        <p><strong>环节三：</strong>组织课堂练习，巩固所学知识</p>
+                    </div>
+                    
+                    <div style="background: #f9fafb; padding: 15px; border-left: 4px solid #f59e0b; margin-bottom: 15px;">
+                        <h4 style="color: #f59e0b; margin-bottom: 10px;">3. 课堂互动（10分钟）</h4>
+                        <p>小组讨论：让学生分组讨论${topic}在实际生活中的应用</p>
+                        <p>成果展示：每组派代表分享讨论结果</p>
+                    </div>
+                    
+                    <div style="background: #f9fafb; padding: 15px; border-left: 4px solid #ef4444; margin-bottom: 15px;">
+                        <h4 style="color: #ef4444; margin-bottom: 10px;">4. 总结提升（7分钟）</h4>
+                        <p>教师总结本节课重点内容，强调${topic}的核心要点</p>
+                        <p>布置课后作业，预习下节课内容</p>
+                    </div>
+                    
+                    <div style="background: #f9fafb; padding: 15px; border-left: 4px solid #8b5cf6; margin-bottom: 15px;">
+                        <h4 style="color: #8b5cf6; margin-bottom: 10px;">5. 作业布置（3分钟）</h4>
+                        <p>完成练习册相关习题</p>
+                        <p>预习下一课内容</p>
+                    </div>
+                </div>
+                
+                <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #92400e; margin-bottom: 15px;">五、板书设计</h3>
+                    <div style="background: white; padding: 15px; border: 2px solid #e5e7eb; border-radius: 6px; font-family: 'KaiTi', serif;">
+                        <h4 style="text-align: center; margin-bottom: 15px;">${topic}</h4>
+                        <p>1. 概念：......</p>
+                        <p>2. 特征：......</p>
+                        <p>3. 应用：......</p>
+                        <p>4. 例题：......</p>
+                    </div>
+                </div>
+                
+                <div style="background: #e0e7ff; padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #3730a3; margin-bottom: 15px;">六、教学反思</h3>
+                    <p>（课后填写）本节课教学效果良好，学生对${topic}的理解程度达到预期。下次教学时可以考虑增加更多互动环节。</p>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border-radius: 8px; border: 2px solid #10b981;">
+                    <p style="color: #065f46; font-weight: 600;"><i class="fas fa-check-circle"></i> 本教案已根据2022年版义务教育${subject}课程标准生成，符合新课标要求。</p>
+                </div>
+            `;
+        }
+        
+        // Generate exercises
+        function generateExercises() {
+            const subject = document.getElementById('exercise-subject').value;
+            const grade = document.getElementById('exercise-grade').value;
+            const knowledge = document.getElementById('exercise-knowledge').value;
+            
+            if (!subject || !grade || !knowledge) {
+                alert('请填写完整的出题信息！');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('exercise-loading').style.display = 'block';
+            document.getElementById('exercise-result').style.display = 'none';
+            
+            // Simulate AI generation
+            setTimeout(() => {
+                document.getElementById('exercise-loading').style.display = 'none';
+                document.getElementById('exercise-result').style.display = 'block';
+                
+                // Generate mock exercises
+                const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
+                const mediumCount = parseInt(document.getElementById('medium-count').value) || 0;
+                const advancedCount = parseInt(document.getElementById('advanced-count').value) || 0;
+                
+                const content = generateMockExercises(subject, grade, knowledge, basicCount, mediumCount, advancedCount);
+                document.getElementById('exercise-content').innerHTML = content;
+            }, 2500);
+        }
+        
+        // Generate mock exercises
+        function generateMockExercises(subject, grade, knowledge, basic, medium, advanced) {
+            let html = `<h2 style="text-align: center; color: #1f2937; margin-bottom: 30px;">${subject} ${grade} - 练习题</h2>`;
+            
+            // Basic questions
+            if (basic > 0) {
+                html += `<div style="background: #d1fae5; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #065f46; margin-bottom: 20px;">一、基础题（共${basic}题）</h3>`;
+                
+                for (let i = 1; i <= basic; i++) {
+                    html += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #d1d5db;">
+                            <p style="font-weight: 600; margin-bottom: 10px;">${i}. 下列关于${knowledge.split('，')[0]}的说法，正确的是（ ）</p>
+                            <div style="padding-left: 20px;">
+                                <p>A. 选项A的内容</p>
+                                <p>B. 选项B的内容</p>
+                                <p>C. 选项C的内容</p>
+                                <p>D. 选项D的内容</p>
+                            </div>
+                            <p style="color: #10b981; margin-top: 10px;"><strong>答案：</strong>B</p>
+                            <p style="color: #6b7280; font-size: 14px;"><strong>解析：</strong>本题考查${knowledge.split('，')[0]}的基本概念...</p>
+                        </div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // Medium questions
+            if (medium > 0) {
+                html += `<div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #92400e; margin-bottom: 20px;">二、提高题（共${medium}题）</h3>`;
+                
+                for (let i = 1; i <= medium; i++) {
+                    html += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #d1d5db;">
+                            <p style="font-weight: 600; margin-bottom: 10px;">${i}. 应用题：根据给定的条件，解答下列问题。（本题10分）</p>
+                            <p style="margin-bottom: 10px;">题目描述：......</p>
+                            <p style="color: #10b981; margin-top: 10px;"><strong>参考答案：</strong></p>
+                            <p style="background: #f9fafb; padding: 10px; border-radius: 6px; font-size: 14px;">解题步骤：<br>1. ...<br>2. ...<br>3. ...<br>最终结果：...</p>
+                        </div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // Advanced questions
+            if (advanced > 0) {
+                html += `<div style="background: #fee2e2; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="color: #991b1b; margin-bottom: 20px;">三、拓展题（共${advanced}题）</h3>`;
+                
+                for (let i = 1; i <= advanced; i++) {
+                    html += `
+                        <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #d1d5db;">
+                            <p style="font-weight: 600; margin-bottom: 10px;">${i}. 探究题：本题为开放性试题，请结合所学知识进行分析。（本题15分）</p>
+                            <p style="margin-bottom: 10px;">探究问题：......</p>
+                            <p style="color: #10b981; margin-top: 10px;"><strong>参考答案要点：</strong></p>
+                            <p style="background: #f9fafb; padding: 10px; border-radius: 6px; font-size: 14px;">要点1：...<br>要点2：...<br>要点3：...<br>（本题答案不唯一，言之有理即可得分）</p>
+                        </div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            html += `<div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border-radius: 8px; border: 2px solid #10b981;">
+                <p style="color: #065f46; font-weight: 600;"><i class="fas fa-check-circle"></i> 本题库已根据${grade}教学要求生成，题目难度分级明确，适合分层教学使用。</p>
+            </div>`;
+            
+            return html;
+        }
+        
+        // Generate document
+        function generateDocument() {
+            const docType = document.getElementById('doc-type').value;
+            const school = document.getElementById('doc-school').value;
+            const keywords = document.getElementById('doc-keywords').value;
+            
+            if (!docType || !school || !keywords) {
+                alert('请填写完整的文档信息！');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('document-loading').style.display = 'block';
+            document.getElementById('document-result').style.display = 'none';
+            
+            // Simulate AI generation
+            setTimeout(() => {
+                document.getElementById('document-loading').style.display = 'none';
+                document.getElementById('document-result').style.display = 'block';
+                
+                // Generate mock document
+                const content = generateMockDocument(docType, school, keywords);
+                document.getElementById('document-content').innerHTML = content;
+            }, 2000);
+        }
+        
+        // Generate mock document
+        function generateMockDocument(docType, school, keywords) {
+            const currentDate = new Date().toLocaleDateString('zh-CN');
+            
+            return `
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h2 style="font-size: 28px; color: #1f2937;">${school}</h2>
+                    <h3 style="font-size: 24px; color: #374151; margin-top: 20px;">${docType}</h3>
+                </div>
+                
+                <div style="line-height: 2; font-size: 16px;">
+                    <p><strong>学校名称：</strong>${school}</p>
+                    <p><strong>文档类型：</strong>${docType}</p>
+                    <p><strong>生成日期：</strong>${currentDate}</p>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="color: #374151; margin-bottom: 15px;">一、基本情况</h4>
+                        <p style="text-indent: 2em;">根据提供的关键信息，${keywords.substring(0, 100)}......</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="color: #374151; margin-bottom: 15px;">二、主要内容</h4>
+                        <p style="text-indent: 2em;">在本次${docType}中，我们紧紧围绕教育教学中心工作，注重理论与实践相结合......</p>
+                        <p style="text-indent: 2em;">通过组织开展多种形式的教学研讨活动，不断提升教师专业素养和教学能力......</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="color: #374151; margin-bottom: 15px;">三、成效与亮点</h4>
+                        <p style="text-indent: 2em;">1. 教学效果显著提升，学生满意度达到95%以上。</p>
+                        <p style="text-indent: 2em;">2. 教师参与度高，形成了良好的教研氛围。</p>
+                        <p style="text-indent: 2em;">3. 创新教学方法，运用现代教育技术手段。</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="color: #374151; margin-bottom: 15px;">四、存在问题与改进措施</h4>
+                        <p style="text-indent: 2em;">在取得成绩的同时，我们也清醒地认识到工作中还存在一些不足......</p>
+                        <p style="text-indent: 2em;">今后，我们将进一步解放思想，开拓创新，不断提升教育教学质量......</p>
+                    </div>
+                    
+                    <div style="margin-top: 50px; text-align: right;">
+                        <p>${school}</p>
+                        <p>${currentDate}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #f0fdf4; border-radius: 8px; border: 2px solid #10b981;">
+                    <p style="color: #065f46; font-weight: 600;"><i class="fas fa-check-circle"></i> 本文档已按照学校公文规范生成，格式规范，可直接使用或上传至学校OA系统。</p>
+                </div>
+            `;
+        }
+        
+        // Reset form
+        function resetForm(type) {
+            if (type === 'lesson') {
+                document.getElementById('lesson-subject').value = '';
+                document.getElementById('lesson-grade').value = '';
+                document.getElementById('lesson-textbook').value = '';
+                document.getElementById('lesson-topic').value = '';
+                document.getElementById('lesson-result').style.display = 'none';
+            } else if (type === 'exercise') {
+                document.getElementById('exercise-subject').value = '';
+                document.getElementById('exercise-grade').value = '';
+                document.getElementById('exercise-knowledge').value = '';
+                document.getElementById('basic-count').value = 10;
+                document.getElementById('medium-count').value = 5;
+                document.getElementById('advanced-count').value = 3;
+                document.getElementById('exercise-result').style.display = 'none';
+            } else if (type === 'document') {
+                document.getElementById('doc-type').value = '';
+                document.getElementById('doc-school').value = '';
+                document.getElementById('doc-keywords').value = '';
+                document.getElementById('document-result').style.display = 'none';
+            }
+        }
+        
+        // Export functions (mock)
+        function exportToWord(type) {
+            alert('在完整版本中，这里将调用导出功能，生成Word文档供下载。\n\n当前为演示版本，此功能暂未实现。');
+        }
+        
+        function exportToPDF(type) {
+            alert('在完整版本中，这里将调用导出功能，生成PDF文档供下载。\n\n当前为演示版本，此功能暂未实现。');
+        }
+        
+        function exportWithAnswers(type) {
+            alert('在完整版本中，这里将生成包含答案的PDF文档。\n\n当前为演示版本，此功能暂未实现。');
+        }
+        
+        function printResult(type) {
+            window.print();
+        }
+        
+        function uploadToOA() {
+            alert('在完整版本中，这里将直接上传文档到学校OA系统。\n\n当前为演示版本，此功能暂未实现。');
+        }
+    </script>
+</body>
+</html>
